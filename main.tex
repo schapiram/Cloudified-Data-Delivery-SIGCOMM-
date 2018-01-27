@@ -352,9 +352,9 @@ We next contrast the simple strategy with recent proposals for end-to-end conges
 
 Show Split vs. Pipe and explain the challenges in the difference
 
-\subsection{} \IK{See below -- When Alex is done editing the file, it corresponds to the following section which needs to become a subsection}
+%\subsection{} \IK{See below -- When Alex is done editing the file, it corresponds to the following section which needs to become a subsection}
 
-Clever splitting (recycling connections etc.)
+%Clever splitting (recycling connections etc.)
 
 \input{design}
 
@@ -792,6 +792,8 @@ and flexible user-space agent called CCP. Although this is basically a discussio
 \EZ{\cite{jose2015proactive} advocates proactive congestion control mechanisms that explicitly calculate sending rates based on flow.}
 
 \EZ{\cite{le2015experiences} presents IBM's experience with a transparent TCP proxy sitting close to wireless clients. One of their relevant findings is that the success of the deployment highly depends on the location of the proxy.}
+
+\EZ{Google's work~\cite{flach2013reducing} reduce download completion times by adding judicious redundancy to TCP. They offer 3 easily-deployable mechanisms (active, reactive, and corrective), and show experimental results that decrease both mean time and 99th percentile latency in Google's traffic.}
 
 \T{Internet overlays.} The idea of overlay networking on top of the Internet dates back almost two decades~\cite{old-overlay-1, old-overlay-2, RON}. Many studies established that the default BGP path between two end-points is often inferior to an alternate path traversing an overlay network~\cite{old-overlay-1, old-overlay-2, RON, akamai-2, akamai-3, akamai-4}. Akamai's SureRoute service relies on such an Internet overlay network.
 
