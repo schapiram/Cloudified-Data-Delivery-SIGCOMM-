@@ -795,6 +795,13 @@ and flexible user-space agent called CCP. Although this is basically a discussio
 
 \EZ{Google's work~\cite{flach2013reducing} reduce download completion times by adding judicious redundancy to TCP. They offer 3 easily-deployable mechanisms (active, reactive, and corrective), and show experimental results that decrease both mean time and 99th percentile latency in Google's traffic.}
 
+% Amin Vahdat - many relevant papers
+\EZ{We can mention TIMELY~\cite{mittal2015timely} that adjusts transmission rates using RTT gradients to keep packet latency low while delivering high bandwidth. They implement their idea in software running over NICs with OS-bypass capabilities.
+}
+
+% Olivier Bonaventure - many MPTCP papers
+\EZ{Do you think MPTCP~\cite{barre2010mptcp} is relevant? MPTCP requires a modification of both ends, making it hard to deploy and use in practice. This alone makes a good case for having two relays fully controls by us.}
+
 \T{Internet overlays.} The idea of overlay networking on top of the Internet dates back almost two decades~\cite{old-overlay-1, old-overlay-2, RON}. Many studies established that the default BGP path between two end-points is often inferior to an alternate path traversing an overlay network~\cite{old-overlay-1, old-overlay-2, RON, akamai-2, akamai-3, akamai-4}. Akamai's SureRoute service relies on such an Internet overlay network.
 
 \T{Cloud overlays.} Recently, overlay networking through the \emph{cloud} has received attention from both researchers (e.g.,~\cite{CRONets}) and practitioners (e.g.,~\cite{teridion}). CRONets~\cite{CRONets} leverages a \emph{single} cloud relay with TCP splitting for data delivery. Our experimentation with a broad spectrum of routing and congestion control schemes for cloudified data delivery, suggests that cloud overlays can provide significantly higher performance than that achievable using only a single relay.
