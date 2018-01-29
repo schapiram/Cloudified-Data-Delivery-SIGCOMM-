@@ -280,6 +280,16 @@ We present below a straw man proposal for OCD. We show that even the proposed na
 
 \subsection{Simple Strategy}
 
+%%%%%%%%%
+\begin{comment}
+\begin{figure}[t!]
+  \subfloat[\label{fig:e2e-traffic}Using AWS relays]{\includegraphics[width=0.2\textwidth]{figures/overlay-vs-e2e.001.png}}
+  \subfloat[ \label{fig:cloud-traffic} Using AWS relays]{\includegraphics[width=0.2\textwidth]{figures/overlay-vs-e2e.002.png}}
+\caption{\label{fig:e2e-vs-cloud-traffic} Server A is sending data to client A}
+\end{figure}
+\end{comment}
+%%%%%%%%%
+
 As a first stab, consider the following simple strategy for OCD. Consider an end-host $A$ in XXX that is sending traffic to an end-host $B$ in XXX. We will refer to $A$ as the server and $B$ as the client. Under today's default data transport mechanisms, traffic from $A$ to $B$ will be routed along the BGP path between the two. As illustrated in Figure~\ref{x}(a), such a path might connect $A$'s ISP to $B$'s ISP via an intermediate ISP (or more). The modulation of traffic from $A$ to $B$ in our example is determined via TCP's congestion control, which reacts to network conditions on the path (congestion, spare capacity) by adaptively adjusting the sending rate.
 
 We consider the following simple strategy for ``cloudified'' data delivery, illustrated in Figure~\ref{x}(b): Traffic from $A$ is sent directly to a nearby cloud ingress point and then enters the cloud. Then, traffic traverses the (single) cloud's infrastructure and leaves that cloud en route to $B$ at an egress point close to $B$. The transport-layer connection between $A$ and $B$ is split into $3$ connections, each employing TCP congestion control: between $A$ and the cloud, within the cloud, and between the cloud and $B$ (see figure). We point out that this strategy does not incorporate aspects such as employing other rate control schemes, leveraging additional relays within the cloud, traversing multiple clouds, and more. Yet, as our empirical results below demonstrate, even the simple strategy yields significant performance benefits. We will later (Section~\ref{x} and~\ref{x}) describe and evaluate more elaborate approaches to OCD.
