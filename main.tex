@@ -243,7 +243,28 @@
 
 %%%%%
 \begin{abstract}
-Much attention is devoted to fixing the Internet's core networking protocols (e.g., interdomain routing with BGP, TCP congestion control TCP). We argue that realizing the full potential of Internet data delivery requires going well beyond this important agenda. Specifically, we contend that the far-reaching implications of developments such as the emergence of ``highways for data transmission'' afforded by globe-spanning public clouds of unprecedented capacity, and the advent of virtualization, call for rethinking the Internet's data delivery paradigm. In particular, the roles of interdomain and intradomain routing, and of conventional end-to-end rate control, should be revisited. We present a holistic approach to ``Optimized and Cloudified Delivery'' (OCD), which leverages virtualization on the cloud to (1) minimize traffic exposure to the adverse effects of BGP routing by ensuring that traffic is routed almost entirely within the cloud, and (2) mitigate TCP's inefficiencies by decoupling the challenge of rate control within the cloud from the challenge of rate control to/from the cloud and employing a different solution for each. We show, through hundreds of thousands of file downloads that OCD significantly outperforms recently proposed approaches to bettering Internet data delivery via novel end-to-end congestion control paradigms (BBR, PCC) by a factor of XXXx and investigate how different factors contribute to OCD's performance gains (including optimizing intra-cloud routing, traversing multiple clouds, terminating transport-layer connections, improved transport-layer protocols, and more).
+Much attention is devoted to fixing the Internet's core networking protocols
+(e.g., interdomain routing with BGP, TCP congestion control). We argue that
+realizing the full potential of Internet data delivery requires going well
+beyond this important agenda. Specifically, we contend that the far-reaching
+implications of developments such as the emergence of ``highways for data
+transmission'' afforded by globe-spanning public clouds of unprecedented
+capacity, and the advent of virtualization, call for rethinking the Internet's
+data delivery paradigm. In particular, the roles of interdomain and intradomain
+routing, and of conventional end-to-end rate control, should be revisited. We
+present a holistic approach to ``Optimized and Cloudified Delivery'' (OCD),
+which leverages virtualization on the cloud to (1) minimize traffic exposure to
+the adverse effects of BGP routing by ensuring that traffic is routed almost
+entirely within the cloud, and (2) mitigate TCP's inefficiencies by decoupling
+the challenge of rate control within the cloud from the challenge of rate
+control to/from the cloud and employing a different solution for each. We show,
+through hundreds of thousands of file downloads that OCD significantly
+outperforms recently proposed approaches to bettering Internet data delivery via
+novel end-to-end congestion control paradigms (BBR, PCC) by a factor of
+XXXx\AB{The factor would depend on the server and client configurations and
+RTTs involved. I'm not sure we can give here a catch-all number (or at least,
+we'd need to specify under which conditions it would be achievable)} and
+investigate how different factors contribute to OCD's performance gains (including optimizing intra-cloud routing, traversing multiple clouds, terminating transport-layer connections, improved transport-layer protocols, and more).
 \end{abstract}
 
 \ifacmart
@@ -264,13 +285,44 @@ The Internet's data delivery infrastructure, whose core components (BGP, TCP, et
 
 We argue that changing any individual component of the Internet's data delivery infrastructure, while clearly beneficial~\cite{x,x,x,x}, is insufficient for realizing the full potential of the Internet as a vehicle for data delivery. Specifically, today's default Internet data delivery does not reflect the far-reaching implications of the emergence of globe-spanning cloud infrastructures of tremendous capacity, and the advent of virtualization, which enable setting up logical relays within the cloud (in the form of virtual machines) and controlling the routing and transport-layer protocols executed by these relays. An interesting analogy is the transition from on-prem computation to cloud computing. Cloud computing was made possible thanks to the emergence of an abundant cloud resource (compute power) and the power of virtualization. Similarly, we contend that Internet data delivery should be adapted to a reality in which the cloud offers unprecedented capacity and virtualization enables outsourcing the better part the burden of local routing (selection of end-to-end BGP routes) and congestion control (end-to-end traffic modulation) to the cloud.
 
-We explore the implications for performance of delegating routing and congestion control to the cloud. Our approach, termed ``Optimized and Cloudified Delivery'' (OCD), reflects two basic goals: (1) Rethink routing across the Internet so as to minimize traffic exposure to the inefficiencies of BGP routing by minimizing the number of AS-level-hops outside the cloud. To accomplish this, we leverage virtualization to ensure that traffic between any two end-hosts enter the cloud in close proximity to the source and leave the cloud close to the destination (if the destination is not already in the cloud, as is often the case with popular content\IK{we can quote the paper about Google being one hop away from most of the Internet... I think it was in our Hotnets references}). Thus, traffic is routed entirely within the cloud with the exception of (at most) two short legs. (2) Rethink rate control on the Internet so as to provide communicating end-hosts with the abstraction of a fixed-capacity network pipe interconnecting them. To this end, OCD's design distinguishes between the challenge of rate control within the cloud from the challenge of rate control to/from the cloud, and tackles each, and the interface of the two, in a different manner. This design principle reflects the observation that rate control on the short legs to/from the cloud involves competition between traffic flows in a highly variable environment, whereas the cloud provides a effectively congestion-less environment as network capacity is plentiful and underutilized~\cite{x,y}.
+We explore the implications for performance of delegating routing and congestion
+control to the cloud. Our approach, termed ``Optimized and Cloudified Delivery''
+(OCD), reflects two basic goals: (1) Rethink routing across the Internet so as
+to minimize traffic exposure to the inefficiencies of BGP routing by minimizing
+the number of AS-level-hops outside the cloud. To accomplish this, we leverage
+virtualization to ensure that traffic between any two end-hosts enter the cloud
+in close proximity to the source and leaves the cloud close to the destination
+(if the destination is not already in the cloud, as is often the case with
+popular content\IK{we can quote the paper about Google being one hop away from
+most of the Internet... I think it was in our Hotnets references}). Thus,
+traffic is routed entirely within the cloud with the exception of (at most) two
+short legs. (2) Rethink rate\AB{why rate and not congestion?} control on the
+Internet so as to provide communicating end-hosts with the abstraction of a
+fixed-capacity network pipe interconnecting them. To this end, OCD's design distinguishes between the challenge of rate control within the cloud from the challenge of rate control to/from the cloud, and tackles each, and the interface of the two, in a different manner. This design principle reflects the observation that rate control on the short legs to/from the cloud involves competition between traffic flows in a highly variable environment, whereas the cloud provides an effectively congestion-less environment as network capacity is plentiful and underutilized~\cite{x,y}.
 
-We present and discuss the many intricacies of OCD, and, in particular, our choices of routing schemes and of transport-layer solutions. We justify our choices empirically by evaluating many alternatives for routing (e.g., only routing within a single cloud vs. allowing routes through multiple clouds, varying the number of cloud relays, etc.) and rate control (terminating vs. not terminating connections, TCP vs. PCC~\cite{PCC} vs. BBR~\cite{BBR}, etc.). Our evaluation relies on a large-scale empirical investigation involving the download of hundreds of thousands of files of varying sizes from multiple locations within and outside the cloud. Our results show that even a straw man proposal for OCD can vastly improve over today's default Internet data delivery (with BGP and TCP/UDP) and over employing recently proposed paradigms for end-to-end congestion control~\cite{x,y}, and that more nuanced routing and transport strategies can lead to significant further benefits.
+We present and discuss the many intricacies of OCD, and, in particular, our
+choices of routing schemes and of transport-layer solutions. We justify our
+choices empirically by evaluating many alternatives for routing (e.g., only
+routing within a single cloud vs. allowing routes through multiple
+clouds\AB{do we have that?}, varying the number of cloud relays, etc.) and rate
+control (terminating vs. not terminating connections, TCP vs. PCC~\cite{PCC} vs.
+BBR~\cite{BBR}, etc.). Our evaluation relies on a large-scale empirical
+investigation involving the download of hundreds of thousands of files of
+varying sizes from multiple locations within and outside the cloud. Our results
+show that even a straw man proposal for OCD can vastly improve over today's
+default Internet data delivery (with BGP and TCP/UDP) and over employing
+recently proposed paradigms for end-to-end congestion control~\cite{x,y},
+and\AB{too many ``and''s} that more nuanced routing and transport strategies can
+lead to significant further benefits.
 
 Of course, global transition to OCD potentially involves saturating cloud resources. While this is a valid concern, we point out two mitigating factors: (1) An overwhelming portion of data sent over the Internet is cacheable and resides close to end-hosts~\cite{x,y,z} in the cloud~\cite{x,y,z}, in CDNs~\cite{x,y,z}, or even in the ISP~\cite{x,y,z}. Thus, the delivery of this data does not saturate the inter-datacenter WANs of cloud providers. (2) We posit that as the popularity of OCD will increase, cloud providers will be incentivized to develop new business models for OCD services and to provision their networks to meet the growing user demand. We hence trust the invisible hand (more accurately, cloud service providers) to generate more network capacity in the cloud to meet the growing demands. We point out that initial industrial realizations of OCD, and corresponding business models, exist even today~\cite{VMware?,teridion}.
+\AB{should we discuss the loss of end-to-end semantics and why we think it is
+okay (I think the TCP Overlay paper included some discussion of the issue and
+other issues related to TCP overlays. We can quote thm\ldots)? Or should this be
+left to and later section?}
 
-We view OCD as a promising direction for contending with the crucial challenge of delivering non-cacheable content. Today's dominant strategy for overcoming the Internet's inefficiencies is caching content close to the consumer (e.g., by CDNs). Yet, this approach cannot be applied to non-cacheable content (live streaming of sports events, VoIP, gaming, videoconferencing, etc.) and, moreover, as content becomes more interactive and customized, the amount of non-cacheable content is only expected to grow~\cite{x,y,z}. The Internet, in its present form, is ill-equipped to contend with this trend and OCD constitutes a feasible approach for moving forward. We discuss different strategies for safe, incremental transition to OCD.
+We view OCD as a promising direction for contending with the crucial
+challenge of delivering non-cacheable content. Today's dominant strategy for overcoming the Internet's inefficiencies is caching content close to the consumer (e.g., by CDNs). Yet, this approach cannot be applied to non-cacheable content (live streaming of sports events, VoIP, gaming, videoconferencing, etc.) and, moreover, as content becomes more interactive and customized, the amount of non-cacheable content is only expected to grow~\cite{x,y,z}. The Internet, in its present form, is ill-equipped to contend with this trend and OCD constitutes a feasible approach for moving forward. We discuss different strategies for safe, incremental transition to OCD.
 
 \vspace{0.1in}\noindent{\bf Organization.} We present, in Section~\ref{x} a straw man proposal for OCD. We show that even this naive solution significantly outperforms recently proposed approached for improved end-to-end congestion control~\cite{BBR, PCC}. We then explain how the straw man proposal can be extended to attain significantly higher performance benefits. Specifically, Section~\ref{x} discusses our rate-control strategy and Section~\ref{x} discusses our routing strategy. Each of these two sections incorporates empirical results justifying our design choices. Section~\ref{x} discusses different strategies for transitioning to OCD. We discuss related work in Section~\ref{x} and conclude in Section~\ref{x}.
 
@@ -280,9 +332,26 @@ We present below a straw man proposal for OCD. We show that even the proposed na
 
 \subsection{Simple Strategy}
 
-As a first stab, consider the following simple strategy for OCD. Consider an end-host $A$ in XXX that is sending traffic to an end-host $B$ in XXX. We will refer to $A$ as the server and $B$ as the client. Under today's default data transport mechanisms, traffic from $A$ to $B$ will be routed along the BGP path between the two. As illustrated in Figure~\ref{x}(a), such a path might connect $A$'s ISP to $B$'s ISP via an intermediate ISP (or more). The modulation of traffic from $A$ to $B$ in our example is determined via TCP's congestion control, which reacts to network conditions on the path (congestion, spare capacity) by adaptively adjusting the sending rate.
+As a first stab, consider the following simple strategy for OCD. Consider an
+end-host $A$ in XXX that is sending traffic to an end-host $B$ in XXX. We will
+refer to $A$ as the server and $B$ as the client. Under today's default data
+transport mechanisms, traffic from $A$ to $B$ will be routed along the BGP path
+between the two. As illustrated in Figure~\ref{x}(a), such a path might connect
+$A$'s ISP to $B$'s ISP via an intermediate ISP (or more). The modulation of
+traffic from $A$ to $B$ in our example is determined via TCP's congestion
+control, which reacts to network conditions on the path (congestion, spare
+capacity) by adaptively adjusting the sending rate.\AB{wouldn't that irritate
+reviewers with background in TCP congestions control, since CUBIC, and other
+flavors, are window-based and not rate-based?}
 
-We consider the following simple strategy for ``cloudified'' data delivery, illustrated in Figure~\ref{x}(b): Traffic from $A$ is sent directly to a nearby cloud ingress point and then enters the cloud. Then, traffic traverses the (single) cloud's infrastructure and leaves that cloud en route to $B$ at an egress point close to $B$. The transport-layer connection between $A$ and $B$ is split into $3$ connections, each employing TCP congestion control: between $A$ and the cloud, within the cloud, and between the cloud and $B$ (see figure). We point out that this strategy does not incorporate aspects such as employing other rate control schemes, leveraging additional relays within the cloud, traversing multiple clouds, and more. Yet, as our empirical results below demonstrate, even the simple strategy yields significant performance benefits. We will later (Section~\ref{x} and~\ref{x}) describe and evaluate more elaborate approaches to OCD.
+We consider the following simple strategy\AB{Same sentence to open the previous
+paragraph\ldots seems weird. Is that intentional?} for ``cloudified'' data
+delivery, illustrated in Figure~\ref{x}(b):
+Traffic from $A$ is sent directly to a nearby\AB{in what sense?} cloud ingress
+point and then enters the cloud. Then, traffic traverses the (single) cloud's
+infrastructure and leaves that cloud en route to $B$ at an egress point
+close\AB{in what sense?} to $B$. The transport-layer connection between $A$ and
+$B$ is split into $3$ connections, each employing TCP congestion control: between $A$ and the cloud, within the cloud, and between the cloud and $B$ (see figure). We point out that this strategy does not incorporate aspects such as employing other rate control schemes, leveraging additional relays within the cloud, traversing multiple clouds, and more. Yet, as our empirical results below demonstrate, even the simple strategy yields significant performance benefits. We will later (Section~\ref{x} and~\ref{x}) describe and evaluate more elaborate approaches to OCD.
 
 To conclude, the simple strategy relies on:
 
@@ -290,7 +359,7 @@ To conclude, the simple strategy relies on:
 
 \vspace{0.1in}\noindent{\bf Splitting the transport-layer connection.} We break the end-to-end connection between two end-hosts into $3$ consecutive connections. As discussed in Section~\ref{x}, the challenges facing rate-control for the intra-cloud connection are fundamentally different than those faced by rate-control for the first and last connections (to/from the cloud). The simple strategy ignores this distinction and simply employs traditional TCP congestion control independently on each leg.
 
-\subsection{Evaluation of Simple Strategy}
+\subsection{Evaluation of \AB{a/the missing?} Simple Strategy}
 
 We next contrast the simple strategy with recent proposals for end-to-end congestion control (namely PCC~\cite{PCC} and BBR~\cite{BBR}) and also with the strategy that employs the same cloud relays but does not split the transport-layer connection, which reflects a choice to minimize the impact of BGP routing (by routing mostly within the cloud) without tampering with TCP. Our results show that the simple strategy significantly outperforms both of the other two strategies, suggesting that replacing the default congestion control alone, or the default routing alone, are insufficient. We revisit the rate-control and routing challenges in Sections~\ref{x} and~\ref{sec:numb_of_relays}, respectively.
 
