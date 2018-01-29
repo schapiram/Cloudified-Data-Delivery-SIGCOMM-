@@ -55,8 +55,9 @@
     \newcommand{\Journal}[1]{}  %enable for journal only
     \newcommand{\OnlyTR}[1]{#1}   %enable for TR only, disable for journal
 \fi
-
-\documentclass[sigconf,usenames,dvipsnames,geometry]{acmart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[10pt,sigconf]{acmart}
+%\documentclass[sigconf,usenames,dvipsnames,geometry]{acmart}
 % \documentclass[sigconf]{acmart}
 \PassOptionsToPackage{numbers,super}{natbib}
 
@@ -174,10 +175,10 @@
 
 %define your comment NAME and COLOR here
 \newcommand{\IK}[1]{\mycomm{IK}{blue}{#1}}
-\newcommand{\AB}[1]{\mycomm{AB}{Orange}{#1}}
-\newcommand{\NR}[1]{\mycomm{NR}{OliveGreen}{#1}}
+\newcommand{\AB}[1]{\mycomm{AB}{orange}{#1}}
+\newcommand{\NR}[1]{\mycomm{NR}{violet}{#1}}
 \newcommand{\MS}[1]{\mycomm{MS}{red}{#1}}
-\newcommand{\EZ}[1]{\mycomm{EZ}{BlueGreen}{#1}}
+\newcommand{\EZ}[1]{\mycomm{EZ}{teal}{#1}}
 \newcommand{\MA}[1]{\mycomm{MA}{magenta}{#1}}
 
 \providecommand{\vs}{vs. }
@@ -252,6 +253,7 @@ Much attention is devoted to fixing the Internet's core networking protocols (e.
 
 \EZ{The term ``cloud'' is ambiguous. Sometimes, it means ``any public cloud'', and sometimes it refers to a specific public cloud provider. In addition, I found that ``multi-cloud'' is used by others to describe different \emph{types} of clouds - http://www.cse.wustl.edu/~jain/talks/ccisp16.htm}
 
+
 \section{Introduction}
 
 The Internet's data delivery infrastructure, whose core components (BGP, TCP, etc.) were designed decades ago, reflects a traditional view of the Internet's landscape: traffic leaving a source traverses multiple organizational networks (Autonomous Systems), potentially contending over network resources with other traffic flows en route to its destination at multiple locations along the way. Indeed, despite many changes to the Internet's ecosystem over the past two decades (the emergence of global corporate WANs, IXPs, CDNs), BGP paths consistently remain about 4-AS-hops long on average~\cite{x}, and congestion control on the Internet remains notoriously bad~\cite{PCC}. Consequently, fixing the deficiencies of the Internet's core networking protocols for routing and congestion control, though a decades-old agenda, remains at the center of attention, as evidenced by the surge of recent interest in novel congestion control paradigms~\cite{x,x,x,x,x,x} and in data-driven BGP-path-selection~\cite{x,y}.
@@ -288,11 +290,40 @@ To conclude, the simple strategy relies on:
 
 We next contrast the simple strategy with recent proposals for end-to-end congestion control (namely PCC~\cite{PCC} and BBR~\cite{BBR}) and also with the strategy that employs the same cloud relays but does not split the transport-layer connection, which reflects a choice to minimize the impact of BGP routing (by routing mostly within the cloud) without tampering with TCP. Our results show that the simple strategy significantly outperforms both of the other two strategies, suggesting that replacing the default congestion control alone, or the default routing alone, are insufficient. We revisit the rate-control and routing challenges in Sections~\ref{x} and~\ref{sec:numb_of_relays}, respectively.
 
-\vspace{0.1in}\noindent{\bf Experimental framework.} We used multiple settings to evaluate this simple strategy. In this section we will focus on two routes, (1) US East coast to Europe, (2) US West coast to US East coast.
+\vspace{0.1in}\noindent{\bf Experimental framework.} We used multiple settings to evaluate this simple strategy. In this section we will focus on three different routes; (1)~US East coast to Europe, (2)~US West coast to Mumbai, India, and (3)~US West coast to East coast. 
+We used PlanetLab\cite{PlanetLab} machines as clients. 
+For servers outside the cloud, we used the following:
+(1)~www.cc.iitb.ac.in, located in IIT Bombay, India; (2)~www.college.columbia.edu, located in Columbia University, NY, US;
+(3)~Virtual machines on Kamatera~\cite{kamatera} infrastructure, located in NY, US, and Amsterdam, The Netherlands. 
+We chose university-based servers as these typically have fairly good Internet connection but do not use CDNs, and so download times are not expected to be affected by redirections or caching. We downloaded two types of files from these servers: large files (3.9~MB for the first server, 3.8~MB for the second, 10~MB for the third type), and small files (17~KB for the first server, 18~KB for the second, 10~KB for the third type). In addition, we used experimented with extra large files (100~MB) on the Kamatera servers
+To assess cloud performance, we deployed relays (virtual machines) on three major clouds: \textit{AWS} (Amazon web services), \textit{GCP} (Google cloud platform) and Microsoft \textit{Azure}. In each cloud, we deployed at least one relay in each publicly-available region (\autoref{tab:cloud-config}), 
+\begin{table} {\small
+    \centering 
+    \begin{tabular}{c c c c}
+        %\hline
+         Cloud &            AWS &           Azure               & GCP \\ \hline %\hline
+         \# of Regions &    14 &            26                  & 10 \\
+         Machine %Type/Size 
+            &     t2.micro &      Standard\_DS1\_v2   & n1-standard-1 \\
+         \textcent/hour &   1.2 -- 2         & 7                 & 4.75 -- 6.74 \\
+         \textcent/GB & 9  & 8.7 -- 18.1   & 12 -- 23 (1 in US) \\ \hline
+       
+        % \hline
+    \end{tabular}
+    \caption{Number of regions and machine types used in each cloud, and their pricing, taken from the cloud providers' website. 
+    %\IK{I deleted lines to make it look nicer and compressed to fit single column; feel free to revert. Also, very minor: would the transpose of this table look better? Feel free to ignore.}
+    }
+    \label{tab:cloud-config}
+    }
+\end{table}
+yielding a total of 50 relays. Each relay ran either Ubuntu 17.04 or 17.10 using relatively cheap machine types.
 
-\vspace{0.1in}\noindent{\bf The simple strategy \emph{vs.} clever end-to-end congestion control.}
 
-\vspace{0.1in}\noindent{\bf The simple strategy \emph{vs.} no connection splitting.}
+\vspace{0.1in}\noindent{\bf The simple strategy \emph{vs.} clever end-to-end congestion control.} Figure~\ref{fig:cloud-vs-CC} shows the difference in performance. In the continental US scenario, we can see that using the cloud provides x5 improvement over quick-start TCP, and x7 over BBR and PPC.
+
+\vspace{0.1in}\noindent{\bf The simple strategy \emph{vs.} no connection splitting.} The need for splitting the TCP connections is demonstrated in figure~\ref{fig:must-split}. 
+
+\NR{Waiting on actual results, these are just placeholders}
 
 \IK{Noga: See if you want to put the localized experimental framework in a new subsection 2.2, or just with a different paragraph title}
 
@@ -301,6 +332,13 @@ We next contrast the simple strategy with recent proposals for end-to-end conges
 
 \MS{Compare to BGP+TCP and to BGP+BBR/PCCv1 \\
 ... and to BGP+aggressive TCP? and to split not in the cloud?}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\columnwidth,trim=2mm 2mm 2mm 2mm,clip]{figures/tcp_splitting_aws.png}
+  \caption{Placeholder for straw man vs. clever e2e CC}
+ \label{fig:cloud-vs-CC}
+\end{figure}
 
 
 %%%%%%%%%%%%%%%%%
@@ -351,6 +389,29 @@ We next contrast the simple strategy with recent proposals for end-to-end conges
 \subsection{Our pipe dream -- ideal}
 
 Show Split vs. Pipe and explain the challenges in the difference
+
+
+\begin{figure*}[t]
+  \centering
+    \begin{subfigure}{0.6\columnwidth}
+  \centering
+  \includegraphics[width=\columnwidth]{figures/ideal.png}
+    \caption{Ideal trasnmission.}
+    \label{fig:ideal}
+\end{subfigure} \hfill   \centering
+\begin{subfigure}{0.6\columnwidth}
+  \centering
+  \includegraphics[width=\columnwidth]{figures/split.png}
+    \caption{Simple cloud split.} \label{fig:split}
+\end{subfigure}
+ \centering
+\begin{subfigure}{0.6\columnwidth}
+  \centering
+  \includegraphics[width=\columnwidth]{figures/early-syn.png}
+    \caption{Early-SYN.} \label{fig:split}
+\end{subfigure}
+    \caption{Comparison of the various data transmission methods considered in this paper. For representation simplicity, we assume that the client requests three packets, that the initial TCP window size is one packet, and that there are no losses. \textbf{(a)} Ideally, the request for packets goes through directly, and the packets are then sent in a pipeline-like fashion to the client. The time-to-first-byte (TTFB) is just one round-trip time (RTT) and the download time is barely higher. \IK{TBD} }
+\end{figure*}
 
 %\subsection{} \IK{See below -- When Alex is done editing the file, it corresponds to the following section which needs to become a subsection}
 
@@ -412,6 +473,8 @@ This suggests that determining the identity of the best single relay to use is n
 
 We also tested whether routes traversing different clouds can produce better results. To this end we rerun the 2-relay and 3-relay experiments (with TCP splitting) using the SF client and Mumbai server with \rc on AWS and \rs on Azure. We compared performance to that of the same strategies with AWS relays only. Our preliminary results show that mixing clouds was indeed beneficial in some of the evaluated scenarios--- specifically, when Quick-Start Cubic was used and/or when three relays were used (with either Cubic or Quick-Start Cubic). 
 
+
+%%%%%%%%%%%%%%%%%%%%
 \section{Deployment Strategies}
 
 We next discuss strategies for deploying OCD. We consider two different contexts: (1) a cloud provider deciding to provide OCD as a service, and (2) another entity (say, a website) deciding to employ OCD for its traffic.
@@ -429,37 +492,36 @@ Consider now the scenario that a content owner such as CNN wishes to transition 
 Regardless of how this is accomplished, \emph{incremental} transition to OCD over a cloud infrastructure, i.e., the scenario that some traffic traversing the cloud is modulated as discussed in Section~\ref{x}, and other traffic is not, raises questions about how friendly OCD traffic is to other flows on the cloud infrastructure... Results!
 
 
-\section{Experimental Framework}
+\section{More Experimental Results}
 
-\NR{I'm copying last time's version in here and making some changes, please feel free to comment}
 \IK{Important: can we tell them that they can play with something online? If not, can we promise them that there is some open-source code? Or even some VMs that they can download and run? Being able to replicate the results is important in this community, and the clouds help us  enable cool stuff.}
 \AB{I think we can publish the scripts we currently use (or a modified version of these scripts...) and add a README on how to run them. No need for a special VM. Just need to create VMs in the clouds (and we can also publish scripts for that).}
 
-In preparation for this paper, we ran of thousands of experiments \AB{actually - > 240K downloads by me and > 140K downloads by Noga. I don't know if I would call each an "experiment", though}, considering both inter-continental and intra-continental routing. For the sake of simplicity, we focus in this paper on representative examples, before discussing a few trends and outliers.
+% In preparation for this paper, we ran of thousands of experiments \AB{actually - > 240K downloads by me and > 140K downloads by Noga. I don't know if I would call each an "experiment", though}, considering both inter-continental and intra-continental routing. For the sake of simplicity, we focus in this paper on representative examples, before discussing a few trends and outliers.
 % . While not exhaustive by any means, they included various routing options: for example, West US to Mumbai via Asia, East US to Mumbai via Europe, and regional routing in Asia, Europe and the Americas. In the following chapters we discuss some of the trends observed, as well as outliers. 
 
 
-\noindent{\bf Clouds.} We deployed relays (virtual machines) on three major clouds: \textit{AWS} (Amazon web services), \textit{GCP} (Google cloud platform) and Microsoft \textit{Azure}. In each cloud, we deployed one relay in each publicly-available region (\autoref{tab:cloud-config}), 
-\begin{table}[t] {\small
-    \centering 
-    \begin{tabular}{c c c c}
-        %\hline
-         Cloud &            AWS &           Azure               & GCP \\ \hline %\hline
-         \# of Regions &    14 &            26                  & 10 \\
-         Machine %Type/Size 
-            &     t2.micro &      Standard\_DS1\_v2   & n1-standard-1 \\
-         \textcent/hour &   1.2 -- 2         & 7                 & 4.75 -- 6.74 \\
-         \textcent/GB & 9  & 8.7 -- 18.1   & 12 -- 23 (1 in US) \\ \hline
+% \noindent{\bf Clouds.} We deployed relays (virtual machines) on three major clouds: \textit{AWS} (Amazon web services), \textit{GCP} (Google cloud platform) and Microsoft \textit{Azure}. In each cloud, we deployed one relay in each publicly-available region (\autoref{tab:cloud-config}), 
+% \begin{table}[t] {\small
+%     \centering 
+%     \begin{tabular}{c c c c}
+%         %\hline
+%          Cloud &            AWS &           Azure               & GCP \\ \hline %\hline
+%          \# of Regions &    14 &            26                  & 10 \\
+%          Machine %Type/Size 
+%             &     t2.micro &      Standard\_DS1\_v2   & n1-standard-1 \\
+%          \textcent/hour &   1.2 -- 2         & 7                 & 4.75 -- 6.74 \\
+%          \textcent/GB & 9  & 8.7 -- 18.1   & 12 -- 23 (1 in US) \\ \hline
        
-        % \hline
-    \end{tabular}
-    \caption{Number of regions and machine types used in each cloud, and their pricing, taken from the cloud providers' website. 
-    %\IK{I deleted lines to make it look nicer and compressed to fit single column; feel free to revert. Also, very minor: would the transpose of this table look better? Feel free to ignore.}
-    }
-    \label{tab:cloud-config}
-    }
-\end{table}
-yielding a total of 50 relays. Each relay ran Ubuntu 17.04 using relatively cheap machine types. \NR{We actually deployed more than one machine. Also, we used Ubuntu 17.10 for the PCC machines.}
+%         % \hline
+%     \end{tabular}
+%     \caption{Number of regions and machine types used in each cloud, and their pricing, taken from the cloud providers' website. 
+%     %\IK{I deleted lines to make it look nicer and compressed to fit single column; feel free to revert. Also, very minor: would the transpose of this table look better? Feel free to ignore.}
+%     }
+%     \label{tab:cloud-config}
+%     }
+% \end{table}
+% yielding a total of 50 relays. Each relay ran Ubuntu 17.04 using relatively cheap machine types. \NR{We actually deployed more than one machine. Also, we used Ubuntu 17.10 for the PCC machines.}
 % \IK{simple machines}
 %\AB{For the US experiments we used fewer regions -- we only used the regions the Americas. We should put that somewhere.}
 %\NR{We actually deployed more than one VM per region, Aran has the total, but I'm guessing we had 100+ machines}
@@ -472,8 +534,6 @@ yielding a total of 50 relays. Each relay ran Ubuntu 17.04 using relatively chea
 % . 
 %, and was used as either clients, relays, or servers\AB{So, will we have graphs were the VMs are used as servers? Do we want to call the VMs relays, Relays, Jump-hosts? Something else? (just to be consistent)}. \AB{I think that for this paper we should concentrate on clients and servers on the Internet (not the cloud), or at least - on a server on the Internet...}
 
-\NR{Should we add a section specifically about the Kamatera machines, or just add those in the clients and servers portions?}
-
 \smallskip\noindent{\bf Servers.} We used several university-based servers: 
 %For servers outside of the cloud, we have used to following: 
 (1)~www.cc.iitb.ac.in, located in IIT Bombay, India; (2)~www.college.columbia.edu, located in Columbia University, NY, US;
@@ -483,9 +543,9 @@ yielding a total of 50 relays. Each relay ran Ubuntu 17.04 using relatively chea
 %The files from the first server were reused in the cloud servers. 
 We chose university-based servers as these typically have fairly good Internet connection but do not use CDNs, and so download times are not expected to be affected by redirections or caching. We downloaded two types of files from these servers: large files (3.9~MB for the first server, 3.8~MB for the second, 8.9~MB for the third, 9~MB for the fourth), and small files (17~KB for the first server, 18~KB for the second, 9~KB for the third, 24~KB for the fourth).
 %Our bandwidth tests relied on the large files. \AB{Do we need the last line?}
-\NR{Should I just create a table?}
+% \NR{Should I just create a table?}
 
-\smallskip\noindent{\bf Clients.} We used three types of clients: (1)~ a personal computer located in San Francisco (SF), connected to the Internet through Comcast; (2)~PlanetLab~\cite{PlanetLab} nodes in multiple locations worldwide; and (3)~Kematera~\cite{x}
+% \smallskip\noindent{\bf Clients.} We used three types of clients: (1)~ a personal computer located in San Francisco (SF), connected to the Internet through Comcast; (2)~PlanetLab~\cite{PlanetLab} nodes in multiple locations worldwide; and (3)~Kematera~\cite{x}
 % ; and
 %   \item % and running Ubuntu 16.04.2 LTS (Linux kernel verion 4.8.0-52).
 % \end{romanlist}
@@ -844,7 +904,6 @@ Pucha and Hu explore TCP overlay \cite{pucha2005overlay, pucha2005slot}.
 
 
 \section{Conclusion}
-\NR{Copying the HotNets version, needs editing}
 We initiated the systematic exploration of cloudified data delivery and presented initial results suggesting that optimization of performance should be viewed through the congestion-control lens.  We view cloudified data delivery as a promising direction for overcoming the inefficiencies of today's routing (BGP) and congestion control (TCP) protocols. We thus argue that tapping the full potential of this approach is of great importance. 
 
 Our results leave many important questions wide open. We discuss some of these below.
