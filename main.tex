@@ -55,6 +55,7 @@
     \newcommand{\Journal}[1]{}  %enable for journal only
     \newcommand{\OnlyTR}[1]{#1}   %enable for TR only, disable for journal
 \fi
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[10pt,sigconf]{acmart}
 %\documentclass[sigconf,usenames,dvipsnames,geometry]{acmart}
@@ -224,6 +225,7 @@
 \ifacm %only for ACM
  \ifacmart
  % \acmConference[SIGCOMM'17]{ACM SIGCOMM}{August 2017}{Budapest, Hungary}
+ \acmConference[SIGCOMM'18]{ACM Conference}{August 21-23, 2018}{Budapest, Hungary}
 %%% potentially enable (i.e. remove the disable command) for the fields below in the camera-ready version          
     %\settopmatter{printacmref=false}
 	\settopmatter{printfolios=true,printacmref=false} %numbers the pages; remove the ugly ACM reference
@@ -237,7 +239,9 @@
 
 %\maketitle
 \sloppypar
-    
+
+
+%%%%%
 \begin{abstract}
 Much attention is devoted to fixing the Internet's core networking protocols (e.g., interdomain routing with BGP, TCP congestion control TCP). We argue that realizing the full potential of Internet data delivery requires going well beyond this important agenda. Specifically, we contend that the far-reaching implications of developments such as the emergence of ``highways for data transmission'' afforded by globe-spanning public clouds of unprecedented capacity, and the advent of virtualization, call for rethinking the Internet's data delivery paradigm. In particular, the roles of interdomain and intradomain routing, and of conventional end-to-end rate control, should be revisited. We present a holistic approach to ``Optimized and Cloudified Delivery'' (OCD), which leverages virtualization on the cloud to (1) minimize traffic exposure to the adverse effects of BGP routing by ensuring that traffic is routed almost entirely within the cloud, and (2) mitigate TCP's inefficiencies by decoupling the challenge of rate control within the cloud from the challenge of rate control to/from the cloud and employing a different solution for each. We show, through hundreds of thousands of file downloads that OCD significantly outperforms recently proposed approaches to bettering Internet data delivery via novel end-to-end congestion control paradigms (BBR, PCC) by a factor of XXXx and investigate how different factors contribute to OCD's performance gains (including optimizing intra-cloud routing, traversing multiple clouds, terminating transport-layer connections, improved transport-layer protocols, and more).
 \end{abstract}
@@ -290,7 +294,11 @@ To conclude, the simple strategy relies on:
 
 We next contrast the simple strategy with recent proposals for end-to-end congestion control (namely PCC~\cite{PCC} and BBR~\cite{BBR}) and also with the strategy that employs the same cloud relays but does not split the transport-layer connection, which reflects a choice to minimize the impact of BGP routing (by routing mostly within the cloud) without tampering with TCP. Our results show that the simple strategy significantly outperforms both of the other two strategies, suggesting that replacing the default congestion control alone, or the default routing alone, are insufficient. We revisit the rate-control and routing challenges in Sections~\ref{x} and~\ref{sec:numb_of_relays}, respectively.
 
-\vspace{0.1in}\noindent{\bf Experimental framework.} We used multiple settings to evaluate this simple strategy. In this section we will focus on three different routes; (1)~US East coast to Europe, (2)~US West coast to Mumbai, India, and (3)~US West coast to East coast. 
+
+\vspace{0.1in}\noindent{\bf Experimental framework.} 
+% \hfill \break
+In this section we provide results from experiments performed on three different routes; (1)~US East coast to Europe, (2)~US West coast to Mumbai, India, and (3)~US West coast to East coast. 
+
 We used PlanetLab\cite{PlanetLab} machines as clients. 
 For servers outside the cloud, we used the following:
 (1)~www.cc.iitb.ac.in, located in IIT Bombay, India; (2)~www.college.columbia.edu, located in Columbia University, NY, US;
@@ -318,20 +326,7 @@ To assess cloud performance, we deployed relays (virtual machines) on three majo
 \end{table}
 yielding a total of 50 relays. Each relay ran either Ubuntu 17.04 or 17.10 using relatively cheap machine types.
 
-
-\vspace{0.1in}\noindent{\bf The simple strategy \emph{vs.} clever end-to-end congestion control.} Figure~\ref{fig:cloud-vs-CC} shows the difference in performance. In the continental US scenario, we can see that using the cloud provides x5 improvement over quick-start TCP, and x7 over BBR and PPC.
-
-\vspace{0.1in}\noindent{\bf The simple strategy \emph{vs.} no connection splitting.} The need for splitting the TCP connections is demonstrated in figure~\ref{fig:must-split}. 
-
-\NR{Waiting on actual results, these are just placeholders}
-
-\IK{Noga: See if you want to put the localized experimental framework in a new subsection 2.2, or just with a different paragraph title}
-
-
-% To split the TCP connection we used ssh to localhost on each relay and utilized ssh's port forwarding option to forward the byte stream to the next machine en route to the destination.
-
-\MS{Compare to BGP+TCP and to BGP+BBR/PCCv1 \\
-... and to BGP+aggressive TCP? and to split not in the cloud?}
+For the testing of different congestion control algorithms, we used the Ubuntu BBR option, and an in-house PPC vs.1 implementation. More details regarding the Quick TCP approach can be found in~\ref{x}.
 
 \begin{figure}
   \centering
@@ -339,6 +334,20 @@ yielding a total of 50 relays. Each relay ran either Ubuntu 17.04 or 17.10 using
   \caption{Placeholder for straw man vs. clever e2e CC}
  \label{fig:cloud-vs-CC}
 \end{figure}
+
+\vspace{0.1in}\noindent{\bf The simple strategy \emph{vs.} clever end-to-end congestion control.} We tested the different congestion control schemas vs. cloud performance using TCP cubic using Kamatera servers (which allows us to change the congestion control algorithm). Figure~\ref{fig:cloud-vs-CC} shows the difference in performance. 
+In the continental US scenario, we can see that using the cloud provides x5 improvement over Quick-Start TCP \NR{aggressive?}, and x7 over BBR and PPC.
+The results for the US to Europe route differ per cloud: the best performing cloud, the improvement over BBR and Quick-Start was a staggering x20, x33 for PCC for the large file. For the extra large files, the improvement was even better, at x27.
+
+\vspace{0.1in}\noindent{\bf The simple strategy \emph{vs.} no connection splitting.} Several papers (\ref{x,y,z}) demonstrated the need for splitting the connection, though on on a smaller scale. Our results are shown in Figure~\ref{fig:must-split}. \NR{We might want to change that one, as we're only discussing two relays at this point. We do have the data so manipulating this one shouldn't be a problem}
+
+
+% To split the TCP connection we used ssh to localhost on each relay and utilized ssh's port forwarding option to forward the byte stream to the next machine en route to the destination.
+
+\MS{Compare to BGP+TCP and to BGP+BBR/PCCv1 \\
+... and to BGP+aggressive TCP? and to split not in the cloud?}
+
+
 
 
 %%%%%%%%%%%%%%%%%
@@ -393,24 +402,30 @@ Show Split vs. Pipe and explain the challenges in the difference
 
 \begin{figure*}[t]
   \centering
-    \begin{subfigure}{0.6\columnwidth}
+    \begin{subfigure}{0.65\columnwidth}
   \centering
   \includegraphics[width=\columnwidth]{figures/ideal.png}
-    \caption{Ideal trasnmission.}
+    \caption{Ideal transmission.}
     \label{fig:ideal}
-\end{subfigure} \hfill   \centering
-\begin{subfigure}{0.6\columnwidth}
+\end{subfigure}    \centering
+\begin{subfigure}{0.65\columnwidth}
+  \centering
+  \includegraphics[width=\columnwidth]{figures/e2e.png}
+    \caption{End-to-end / cloud NAT.} \label{fig:e2e}
+\end{subfigure}    \centering
+\begin{subfigure}{0.65\columnwidth}
   \centering
   \includegraphics[width=\columnwidth]{figures/split.png}
     \caption{Simple cloud split.} \label{fig:split}
 \end{subfigure}
- \centering
-\begin{subfigure}{0.6\columnwidth}
-  \centering
-  \includegraphics[width=\columnwidth]{figures/early-syn.png}
-    \caption{Early-SYN.} \label{fig:split}
-\end{subfigure}
-    \caption{Comparison of the various data transmission methods considered in this paper. For representation simplicity, we assume that the client requests three packets, that the initial TCP window size is one packet, and that there are no losses. \textbf{(a)} Ideally, the request for packets goes through directly, and the packets are then sent in a pipeline-like fashion to the client. The time-to-first-byte (TTFB) is just one round-trip time (RTT) and the download time is barely higher. \IK{TBD} }
+%  \centering
+% \begin{subfigure}{0.6\columnwidth}
+%   \centering
+%   \includegraphics[width=\columnwidth]{figures/early-syn.png}
+%     \caption{Early-SYN.} \label{fig:early-syn}
+% \end{subfigure}
+    \caption{Comparison of the baseline data transmission methods considered in this paper. For representation simplicity, we assume that the client requests three packets, that the initial TCP window size is one packet, and that there are no losses.\\ \textit{(a)} In an ideal and optimal data-transmission world, the request for packets goes through directly, and the packets are then sent in a pipeline-like fashion to the client. Therefore, the time-to-first-byte (TTFB) is just one round-trip time (RTT), which is as low as it can get. The download time is barely higher.\\ \textit{(b)} Today, an end-to-end TCP transmission first requires the establishment of an end-to-end connection, which adds one RTT to the ideal time. (The case of a transparent cloud NAT is essentially the same and represented in the same figure. The routers are then in the cloud and the RTT can be slightly different.) In addition, waiting one RTT for the first ACK further delays the download. \\ \textit{(c)} Finally, to decrease the download time and get closer to the optimum, we start with a standard TCP split in the cloud. We find that while  we can decrease the ACK time, we also get new delays and especially the thread forks. \\
+    Our goal is to obtain an implementation that gets closer and closer to the ideal time. We find that using \textit{Early-SYN}, we can remove the SYN-ACK and ACK delays marked as (1) from the critical path. Next, using a \textit{thread pool}, we can remove the forks (2). Then, with a \textit{connection pool}, we can eliminate delay (3). Finally, we present an aggressive TCP that prevents delay (4). There are only two last delays that we did not remove on the road to optimality (marked as ?): the last connection SYN-ACK/ACK, and the first data ACK. Both depend on the server parameters, and we assume that we cannot change these. (But if we can, we are essentially at the optimal point!)      \IK{TBD} }
 \end{figure*}
 
 %\subsection{} \IK{See below -- When Alex is done editing the file, it corresponds to the following section which needs to become a subsection}
@@ -424,7 +439,7 @@ Aggressive TCP
 
 \subsection{Congestion Control at the Edge}
 
-TCP/BBR/PCC at the edge -- need to check: for Noga: what's the story here? \NR{Initial results shows little to no difference. Will revisit after all the experiments are done}
+TCP/BBR/PCC at the edge -- need to check: for Noga: what's the story here? \NR{Technically the e2e results are the same experiments, unless we'll use the client in SF. Changing only in the Server doesn't do much at all, especially for the file size we're currently using. There could be a change for 100K / 1M files (that's what Aran saw when changing the CC for cloud machines in the last iterations), but I'm not sure it's that interesting to add}
 
 \subsection{Putting it all together: We are close to Pipe}
 
@@ -534,81 +549,77 @@ Regardless of how this is accomplished, \emph{incremental} transition to OCD ove
 % . 
 %, and was used as either clients, relays, or servers\AB{So, will we have graphs were the VMs are used as servers? Do we want to call the VMs relays, Relays, Jump-hosts? Something else? (just to be consistent)}. \AB{I think that for this paper we should concentrate on clients and servers on the Internet (not the cloud), or at least - on a server on the Internet...}
 
-\smallskip\noindent{\bf Servers.} We used several university-based servers: 
-%For servers outside of the cloud, we have used to following: 
-(1)~www.cc.iitb.ac.in, located in IIT Bombay, India; (2)~www.college.columbia.edu, located in Columbia University, NY, US;
-\NR{Should note that these are no longer available}
-(3)~www.biomed.drexel.edu, located in Drexel University, Philadelphia, PA, US;
-(4)~www.uni-frankfurt.de, located in Goethe-Universität Frankfurt am Main, Frankfurt, Germany
-%The files from the first server were reused in the cloud servers. 
-We chose university-based servers as these typically have fairly good Internet connection but do not use CDNs, and so download times are not expected to be affected by redirections or caching. We downloaded two types of files from these servers: large files (3.9~MB for the first server, 3.8~MB for the second, 8.9~MB for the third, 9~MB for the fourth), and small files (17~KB for the first server, 18~KB for the second, 9~KB for the third, 24~KB for the fourth).
-%Our bandwidth tests relied on the large files. \AB{Do we need the last line?}
-% \NR{Should I just create a table?}
+% \smallskip\noindent{\bf Servers.} We used several university-based servers: 
+% %For servers outside of the cloud, we have used to following: 
+% (1)~www.cc.iitb.ac.in, located in IIT Bombay, India; (2)~www.college.columbia.edu, located in Columbia University, NY, US;
+% \NR{Should note that these are no longer available}
+% (3)~www.biomed.drexel.edu, located in Drexel University, Philadelphia, PA, US;
+% (4)~www.uni-frankfurt.de, located in Goethe-Universität Frankfurt am Main, Frankfurt, Germany
+% %The files from the first server were reused in the cloud servers. 
+% We chose university-based servers as these typically have fairly good Internet connection but do not use CDNs, and so download times are not expected to be affected by redirections or caching. We downloaded two types of files from these servers: large files (3.9~MB for the first server, 3.8~MB for the second, 8.9~MB for the third, 9~MB for the fourth), and small files (17~KB for the first server, 18~KB for the second, 9~KB for the third, 24~KB for the fourth).
+% %Our bandwidth tests relied on the large files. \AB{Do we need the last line?}
+% % \NR{Should I just create a table?}
 
-% \smallskip\noindent{\bf Clients.} We used three types of clients: (1)~ a personal computer located in San Francisco (SF), connected to the Internet through Comcast; (2)~PlanetLab~\cite{PlanetLab} nodes in multiple locations worldwide; and (3)~Kematera~\cite{x}
-% ; and
-%   \item % and running Ubuntu 16.04.2 LTS (Linux kernel verion 4.8.0-52).
-% \end{romanlist}
+% % \smallskip\noindent{\bf Clients.} We used three types of clients: (1)~ a personal computer located in San Francisco (SF), connected to the Internet through Comcast; (2)~PlanetLab~\cite{PlanetLab} nodes in multiple locations worldwide; and (3)~Kematera~\cite{x}
+% % ; and
+% %   \item % and running Ubuntu 16.04.2 LTS (Linux kernel verion 4.8.0-52).
+% % \end{romanlist}
 
-\smallskip\noindent{\bf Data delivery strategies.} For each \textit{(client, server, cloud provider)} triplet, we downloaded small and large files, employing the following data delivery strategies:
+% \smallskip\noindent{\bf Data delivery strategies.} For each \textit{(client, server, cloud provider)} triplet, we downloaded small and large files, employing the following data delivery strategies:
 
-%\begin{CompactEnumerate}
- % \item 
-\PST{End-to-End (E2E).} Download via the default, BGP-based Internet route between the client and server. This is the baseline against which all other strategies are compared;
-%   \item \label{item:nat-1hop}
+% %\begin{CompactEnumerate}
+%  % \item 
+% \PST{End-to-End (E2E).} Download via the default, BGP-based Internet route between the client and server. This is the baseline against which all other strategies are compared;
+% %   \item \label{item:nat-1hop}
 
-\PST{One relay.} Traffic is routed through a single relay node in the cloud. We run this experiment for each and every one of our deployed relays in the specific cloud (except for intra-US experiments, where we only use relays in the American continent).
-% \IK{can we say from the start that we always use the same node in each region, and write here ``the" node for simplicity? it will help the writing everywhere} \NR{Aran and I used different machines, and also these might}
+% \PST{One relay.} Traffic is routed through a single relay node in the cloud. We run this experiment for each and every one of our deployed relays in the specific cloud (except for intra-US experiments, where we only use relays in the American continent).
+% % \IK{can we say from the start that we always use the same node in each region, and write here ``the" node for simplicity? it will help the writing everywhere} \NR{Aran and I used different machines, and also these might}
 
-%\AB{I dropped the Availability Zone discussion. We are short on space as it is.}
-%We use only a single availability zone in each region. \IK{elaborate on the last line: do we know if it matters?} \NR{I'm not sure what it means} \AB{Each region has 2 or 3 availability zones - each connected to a different power supply, possibly situated in a different physical location and might be connected to the network/Internet through different links and different ISP/IXP. A more rigorous test would need to create a node in each availability zone. This is mentioned for completeness of the description.} Thus, a cloud with $n$ regions yields $n$ relay nodes and $n$ corresponding experiments.
-%   \item \label{item:nat-2hop}
+% %\AB{I dropped the Availability Zone discussion. We are short on space as it is.}
+% %We use only a single availability zone in each region. \IK{elaborate on the last line: do we know if it matters?} \NR{I'm not sure what it means} \AB{Each region has 2 or 3 availability zones - each connected to a different power supply, possibly situated in a different physical location and might be connected to the network/Internet through different links and different ISP/IXP. A more rigorous test would need to create a node in each availability zone. This is mentioned for completeness of the description.} Thus, a cloud with $n$ regions yields $n$ relay nodes and $n$ corresponding experiments.
+% %   \item \label{item:nat-2hop}
 
-\PST{Two relays.} Traffic is now routed through 2 relays (in the same cloud), such that the first (denoted $\rs$) is closest to the server RTT-wise and the second ($\rc$) is closest to the client RTT-wise (going over all possible combinations of relay-pairs would be prohibitive). The two relays are always distinct in our experiments. %\IK{Aran: in addition to our discussion that you should mention geographical proximity: have a look at what Michael wrote in the intro under "A simple routing strategy fares reasonably well"}
-In retrospect, the geographically-closest region to the client (server) is almost always the one with the minimum RTT.
-%to establish our two relay nodes, we choose , where the first relay is chosen in the cloud provider's region closest to the client, and the second in the region closest to the server. ``Closest'' here means the region with the smallest RTT to client or server, respectively;
-% \item \label{item:nat-3hop} 
-
-
-\PST{Three relays.} Traffic is routed through 3 relays (in the same cloud), with the first and last relays ($\rs$ and $\rc$, respectively) chosen as described above, and, for each of the other relays, we run an experiment with that relay as the intermediate relay between $\rs$ and $\rc$. For intra-US experiments we only use intermediate relays in the Americas.
-%node the third one is taken from one of the remaining regions the cloud provider operated in (again - looping over all such remaining regions);
-% \item \label{item:split} 
-
-\PST{Splitting end-to-end congestion control.} Repeat all of the previous experiments, this time splitting the end-to-end congestion control connection at each relay; \eg in the 2-relay experiment, a session is established between the server and \rs, a second between \rs and \rc, and a third between \rc and the client.
-
-We repeat this experiment for four congestion control schemes (we only change the congestion control in the cloud nodes and do not modify the end-nodes):
-\begin{CompactEnumerate}
-      \item \textit{TCP Cubic} with default settings;
-      \item \textit{Quick-Start Cubic}: TCP Cubic with large initial cwnd, initial rwnd, and socket buffer;
-      \item \textit{BBR} \cite{BBR}; and
-      \item \textit{PCC} \cite{PCC}.
-\end{CompactEnumerate} 
-% \item \label{item:cc} 
-% For each option measured in \ref{item:split} we examine three different congestion control settings for relay nodes:
-%\end{CompactEnumerate}
-We ran all the experiments in a 4-week period, in July and August 2017, at different times of day. We repeated each of the above 50 times and computed averaged results.
-
-\ifblind \else
-\smallskip\noindent{\bf Tools and techniques.} \textit{RTT measurements} are conducted using hping3 \cite{hping3}, by sending 20 SYN packets (at 0.1 seconds intervals) to an open TCP port on the other side and measuring the round-trip-time between sending each SYN and getting its corresponding SYN-ACK. The minimum of these 20 measurements is taken as the RTT between the two tested endpoints. We chose this method over ping so as to avoid the risk of ICMP filtering.
-
-\PST{Routing through relays.} Routing through cloud relays without splitting the connection was performed by using NAT on the cloud machines, configured using Linux's iptables \cite{iptables}. NAT is used so that the return path traverses the same relays.
-
-\PST{Splitting the connection.} To split the TCP connection we used ssh to localhost on each relay and utilized ssh's port forwarding option to forward the byte stream to the next machine en route to the destination.
-\fi
+% \PST{Two relays.} Traffic is now routed through 2 relays (in the same cloud), such that the first (denoted $\rs$) is closest to the server RTT-wise and the second ($\rc$) is closest to the client RTT-wise (going over all possible combinations of relay-pairs would be prohibitive). The two relays are always distinct in our experiments. %\IK{Aran: in addition to our discussion that you should mention geographical proximity: have a look at what Michael wrote in the intro under "A simple routing strategy fares reasonably well"}
+% In retrospect, the geographically-closest region to the client (server) is almost always the one with the minimum RTT.
+% %to establish our two relay nodes, we choose , where the first relay is chosen in the cloud provider's region closest to the client, and the second in the region closest to the server. ``Closest'' here means the region with the smallest RTT to client or server, respectively;
+% % \item \label{item:nat-3hop} 
 
 
-%\IK{We didn't mention when we ran the experiments, and for how long; or that the standard deviation was sufficiently small that 50 are enough...}
-%\AB{added a short paragraph. Does not yet address the STDEV...}
+% \PST{Three relays.} Traffic is routed through 3 relays (in the same cloud), with the first and last relays ($\rs$ and $\rc$, respectively) chosen as described above, and, for each of the other relays, we run an experiment with that relay as the intermediate relay between $\rs$ and $\rc$. For intra-US experiments we only use intermediate relays in the Americas.
+% %node the third one is taken from one of the remaining regions the cloud provider operated in (again - looping over all such remaining regions);
+% % \item \label{item:split} 
 
-% % These different methods form a set of measurements which were repeated over 50 iterations (or more). We repeated this experiment for the three different cloud providers we considered.
-% \AB{Do we need to describe exactly how we set up the routing with and without splitting through the relays?}
+% \PST{Splitting end-to-end congestion control.} Repeat all of the previous experiments, this time splitting the end-to-end congestion control connection at each relay; \eg in the 2-relay experiment, a session is established between the server and \rs, a second between \rs and \rc, and a third between \rc and the client.
 
-%\IK{\emph{Big decision we need to talk about:} should we organize the paper by topic, or adopt an evaluation-oriented order by first showing a run from SF to NY, then change the cloud, then change the client, then change the server?\\ Also we need to decide whether we prefer CDFs or bars showing averages: CDFs are more complete, bars easier to understand.}
+% We repeat this experiment for four congestion control schemes (we only change the congestion control in the cloud nodes and do not modify the end-nodes):
+% \begin{CompactEnumerate}
+%       \item \textit{TCP Cubic} with default settings;
+%       \item \textit{Quick-Start Cubic}: TCP Cubic with large initial cwnd, initial rwnd, and socket buffer;
+%       \item \textit{BBR} \cite{BBR}; and
+%       \item \textit{PCC} \cite{PCC}.
+% \end{CompactEnumerate} 
+% % \item \label{item:cc} 
+% % For each option measured in \ref{item:split} we examine three different congestion control settings for relay nodes:
+% %\end{CompactEnumerate}
+% We ran all the experiments in a 4-week period, in July and August 2017, at different times of day. We repeated each of the above 50 times and computed averaged results.
+
+% \ifblind \else
+% \smallskip\noindent{\bf Tools and techniques.} \textit{RTT measurements} are conducted using hping3 \cite{hping3}, by sending 20 SYN packets (at 0.1 seconds intervals) to an open TCP port on the other side and measuring the round-trip-time between sending each SYN and getting its corresponding SYN-ACK. The minimum of these 20 measurements is taken as the RTT between the two tested endpoints. We chose this method over ping so as to avoid the risk of ICMP filtering.
+
+% \PST{Routing through relays.} Routing through cloud relays without splitting the connection was performed by using NAT on the cloud machines, configured using Linux's iptables \cite{iptables}. NAT is used so that the return path traverses the same relays.
+
+% \PST{Splitting the connection.} To split the TCP connection we used ssh to localhost on each relay and utilized ssh's port forwarding option to forward the byte stream to the next machine en route to the destination.
+% \fi
 
 
-% \subsubsection{Results}
+% %\IK{We didn't mention when we ran the experiments, and for how long; or that the standard deviation was sufficiently small that 50 are enough...}
+% %\AB{added a short paragraph. Does not yet address the STDEV...}
 
-%\section{Experimental Results}
+% % % These different methods form a set of measurements which were repeated over 50 iterations (or more). We repeated this experiment for the three different cloud providers we considered.
+% % \AB{Do we need to describe exactly how we set up the routing with and without splitting through the relays?}
+
+% %\IK{\emph{Big decision we need to talk about:} should we organize the paper by topic, or adopt an evaluation-oriented order by first showing a run from SF to NY, then change the cloud, then change the client, then change the server?\\ Also we need to decide whether we prefer CDFs or bars showing averages: CDFs are more complete, bars easier to understand.}
+
 
 
 % \IK{References to related work should probably go to the Intro; move/delete this next paragraph?}
